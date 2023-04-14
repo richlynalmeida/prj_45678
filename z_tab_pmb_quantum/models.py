@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from a_hr.models import Personnel, RaciMatrixDefinition, StakeholderRoles
 from b_wbs.models import CostTypeClass, CostType, Department, Discipline, WBSType, WBS, FacilitySystem, \
     FacilitySystemDetail, PmbL03WpExecutionType, PmbL04WpExecutionType, PmbL03WpStatusType, PmbL04WpStatusType
+# from b_benchmarking.models import ProjectPhases, ProjectStages
 from e_commodities.models import CommodityType, Commodity
 # from f_contracts.models import Contract, TrendTypes
 from g_measures.models import UOM
@@ -12,6 +13,39 @@ from django.db import models
 from d_mm.models import MaterialStatus
 from e_commodities.models import CommodityDetail
 from g_measures.models import MilepostTemplate
+
+
+class ProjectPhases(models.Model):
+    project_phase_code = models.CharField(unique=True, max_length=5, verbose_name='Project Phase Code')
+    project_phase_title = models.CharField(max_length=55, blank=True, null=True, verbose_name='Project Phase Title')
+    comments = models.CharField(max_length=2000, blank=True, null=True, verbose_name='Comments')
+
+    class Meta:
+        managed = True
+        verbose_name_plural = 'Project Phases'
+        db_table = 'project_phase'
+        app_label = 'z_tab_pmb_quantum'
+        ordering = ['project_phase_code']
+
+    def __str__(self):
+        return str('%s' % self.project_phase_code)
+
+
+class ProjectStages(models.Model):
+    project_stage_code = models.CharField(unique=True, max_length=5, verbose_name='Project Stage Code')
+    project_stage_title = models.CharField(unique=True, max_length=55, blank=True, null=True,
+                                                   verbose_name='Project Status Title')
+    comments = models.CharField(max_length=2000, blank=True, null=True, verbose_name='Comments')
+
+    class Meta:
+        managed = True
+        verbose_name_plural = "Project Stages"
+        db_table = 'project_stage'
+        app_label = 'z_tab_pmb_quantum'
+        ordering = ['project_stage_code']
+
+    def __str__(self):
+        return f"{self.project_stage_code} - {self.project_stage_title}"
 
 
 class PmbL03Wp(models.Model):
@@ -43,6 +77,46 @@ class PmbL03Wp(models.Model):
     pmb_L03_wp_title = models.CharField(unique=False, max_length=200, blank=True, null=True,
                                         verbose_name='PMB L03 WP Title')
     comments = models.CharField(max_length=2000, blank=True, null=True, verbose_name='Comments')
+    ocb_hours = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+                                    verbose_name='OCB Hours', default=0)
+    ocb_costs = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+                                    verbose_name='OCB Costs', default=0)
+    # Trend Control Budget
+    # tcb_quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+    #                                    verbose_name='TCB Quantity', default=0)
+    # tcb_uom = models.ForeignKey(UOM, on_delete=models.CASCADE, verbose_name='TCB UOM ID', default=1,
+    #                             related_name='tcb_uom')
+    tcb_hours = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+                                    verbose_name='TCB Hours', default=0)
+    tcb_costs = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+                                    verbose_name='TCB Costs', default=0)
+    # Current Control Budget
+    # ccb_quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+    #                                    verbose_name='CCB Quantity', default=0)
+    # ccb_uom = models.ForeignKey(UOM, on_delete=models.CASCADE, verbose_name='CCB UOM ID', default=1,
+    #                             related_name='ccb_uom')
+    ccb_hours = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+                                    verbose_name='CCB Hours', default=0)
+    ccb_costs = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+                                    verbose_name='CCB Costs', default=0)
+    # Trend Forecast Budget
+    # tfb_quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+    #                                    verbose_name='TFB Quantity', default=0)
+    # tfb_uom = models.ForeignKey(UOM, on_delete=models.CASCADE, verbose_name='TFB UOM ID', default=1,
+    #                             related_name='tfb_uom')
+    tfb_hours = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+                                    verbose_name='TFB Hours', default=0)
+    tfb_costs = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+                                    verbose_name='TFB Costs', default=0)
+    # Current Forecast Budget
+    # cfb_quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+    #                                    verbose_name='CFB Quantity', default=0)
+    # cfb_uom = models.ForeignKey(UOM, on_delete=models.CASCADE, verbose_name='CFB UOM ID', default=1,
+    #                             related_name='cfb_uom')
+    cfb_hours = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+                                    verbose_name='CFB Hours', default=0)
+    cfb_costs = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+                                    verbose_name='CFB Costs', default=0)
 
     class Meta:
         managed = True
@@ -66,39 +140,46 @@ class PmbL03WpCa(models.Model):
     pmb_L03_wp_ca_title = models.CharField(unique=False, max_length=200, blank=True, null=True,
                                            verbose_name='PMB L03 WP CA Title')
     comments = models.CharField(max_length=200, blank=True, null=True, verbose_name='CBWP Comments')
-    # Quantification, Pricing, Hours and Costs
-    uom = models.ForeignKey(UOM, on_delete=models.CASCADE, verbose_name='CBWP UOM ID', default=1)
-    # Original Control Budget aka Final Estimate Budget
-    ocb_quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
-                                       verbose_name='OCB Quantity', default=0)
+    # ocb_quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+    #                                    verbose_name='OCB Quantity', default=0)
+    # ocb_uom = models.ForeignKey(UOM, on_delete=models.CASCADE, verbose_name='OCB UOM ID', default=1,
+    #                             related_name='ocb_uom')
     ocb_hours = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
                                     verbose_name='OCB Hours', default=0)
     ocb_costs = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
                                     verbose_name='OCB Costs', default=0)
     # Trend Control Budget
-    tcb_quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
-                                       verbose_name='TCB Quantity', default=0)
+    # tcb_quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+    #                                    verbose_name='TCB Quantity', default=0)
+    # tcb_uom = models.ForeignKey(UOM, on_delete=models.CASCADE, verbose_name='TCB UOM ID', default=1,
+    #                             related_name='tcb_uom')
     tcb_hours = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
                                     verbose_name='TCB Hours', default=0)
     tcb_costs = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
                                     verbose_name='TCB Costs', default=0)
     # Current Control Budget
-    ccb_quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
-                                       verbose_name='CCB Quantity', default=0)
+    # ccb_quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+    #                                    verbose_name='CCB Quantity', default=0)
+    # ccb_uom = models.ForeignKey(UOM, on_delete=models.CASCADE, verbose_name='CCB UOM ID', default=1,
+    #                             related_name='ccb_uom')
     ccb_hours = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
                                     verbose_name='CCB Hours', default=0)
     ccb_costs = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
                                     verbose_name='CCB Costs', default=0)
     # Trend Forecast Budget
-    tfb_quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
-                                       verbose_name='TFB Quantity', default=0)
+    # tfb_quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+    #                                    verbose_name='TFB Quantity', default=0)
+    # tfb_uom = models.ForeignKey(UOM, on_delete=models.CASCADE, verbose_name='TFB UOM ID', default=1,
+    #                             related_name='tfb_uom')
     tfb_hours = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
                                     verbose_name='TFB Hours', default=0)
     tfb_costs = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
                                     verbose_name='TFB Costs', default=0)
     # Current Forecast Budget
-    cfb_quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
-                                       verbose_name='CFB Quantity', default=0)
+    # cfb_quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+    #                                    verbose_name='CFB Quantity', default=0)
+    # cfb_uom = models.ForeignKey(UOM, on_delete=models.CASCADE, verbose_name='CFB UOM ID', default=1,
+    #                             related_name='cfb_uom')
     cfb_hours = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
                                     verbose_name='CFB Hours', default=0)
     cfb_costs = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
@@ -128,7 +209,7 @@ class TrendTypes(models.Model):
         managed = True
         verbose_name_plural = "Trend Types"
         db_table = 'tm_trend_type'
-        app_label = 'f_contracts'
+        app_label = 'z_tab_pmb_quantum'
         ordering = ['trend_type_code']
 
     # def __str__(self):
@@ -148,7 +229,7 @@ class TrendApprovalStatuses(models.Model):
         managed = True
         verbose_name_plural = "Trend Approval Statuses"
         db_table = 'tm_trend_approval_status'
-        app_label = 'f_contracts'
+        app_label = 'z_tab_pmb_quantum'
         ordering = ['trend_approval_status_code']
 
     # def __str__(self):
@@ -158,23 +239,43 @@ class TrendApprovalStatuses(models.Model):
 
 
 class Trends(models.Model):
-    trend_code = models.CharField(unique=True, max_length=5,
-                                  verbose_name='Trend Approval Status Code')
-    trend_title = models.CharField(unique=True, max_length=55, blank=True, null=True,
-                                   verbose_name='Trend Approval Status Title')
-    comments = models.CharField(max_length=2000, blank=True, null=True, verbose_name='Comments')
+    # from_pmb_L03_wp_ca = models.ForeignKey(PmbL03WpCa, on_delete=models.CASCADE, null=True,
+    #                                        verbose_name='From PMB L03 WP CA ID', default=1,
+    #                                        related_name='from_pmb_L03_wp_ca')
+    # to_pmb_L03_wp_ca = models.ForeignKey(PmbL03WpCa, on_delete=models.CASCADE, null=True,
+    #                                        verbose_name='To PMB L03 WP CA ID', default=1,
+    #                                      related_name='to_pmb_L03_wp_ca')
+    tm_trend_type = models.ForeignKey(TrendTypes, on_delete=models.CASCADE,
+                                      verbose_name='Trend Type ID', default=1)
+    tm_trend_approval_status = models.ForeignKey(TrendApprovalStatuses, on_delete=models.CASCADE,
+                                                 verbose_name='Trend Approval Status ID', default=1)
+    # project_phase = models.ForeignKey(ProjectPhases, on_delete=models.CASCADE,
+    #                                   verbose_name='Project Phase ID', default=1)
+    # project_stage = models.ForeignKey(ProjectStages, on_delete=models.CASCADE,
+    #                                   verbose_name='Project Stage ID', default=1)
+    # trend_code = models.CharField(unique=True, max_length=5,
+    #                               verbose_name='Trend Approval Status Code')
+    trend_title = models.CharField(unique=False, max_length=55, blank=False, null=False,
+                                   verbose_name='Trend Title')
+    trend_desc = models.CharField(max_length=2000, verbose_name='Trend Description', blank=True, null=True,)
+    trend_hours = models.DecimalField(max_digits=18, decimal_places=2, verbose_name='Trend Hours', default=0,
+                                      blank=True, null=True,)
+    trend_costs = models.DecimalField(max_digits=18, decimal_places=2, verbose_name='Trend Costs', default=0,
+                                      blank=False, null=False,)
+    modified_date = models.DateTimeField(verbose_name='Modified Date',blank=True, null=True,)
 
     class Meta:
         managed = True
         verbose_name_plural = "Trends"
         db_table = 'tm_trend'
-        app_label = 'f_contracts'
-        ordering = ['trend_code']
+        app_label = 'z_tab_pmb_quantum'
+        # ordering = ['trend_code']
+        unique_together = ['tm_trend_type', 'tm_trend_approval_status', 'trend_title']
 
     # def __str__(self):
     #     return str('%s' % self.contract_pricing_style_code)
     def __str__(self):
-        return f"{self.trend_code} - {self.trend_title}"
+        return f"{self.trend_title}"
 
 
 class PmbL03WpCaDetails(models.Model):
@@ -182,13 +283,11 @@ class PmbL03WpCaDetails(models.Model):
                                       verbose_name='PMB L03 WP CA ID', default=1)
     tm_trend = models.ForeignKey(Trends, on_delete=models.CASCADE,
                                  verbose_name='Trend ID', default=1)
-    # step_no = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)], verbose_name='Step Number')
     transaction_type = models.CharField(unique=False, max_length=10, verbose_name='Transaction Type')
     # Quantification, Pricing, Hours and Costs
-    uom = models.ForeignKey(UOM, on_delete=models.CASCADE, verbose_name='CBWP UOM ID', default=1)
-    # Original Control Budget aka Final Estimate Budget
     quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
                                    verbose_name='Quantity', default=0)
+    uom = models.ForeignKey(UOM, on_delete=models.CASCADE, verbose_name='UOM ID', default=1)
     hours = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
                                 verbose_name='Hours', default=0)
     costs = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
@@ -219,16 +318,14 @@ class PmbL03WpCaScopeItems(models.Model):
                                                       verbose_name='PMB L03 WP CA Scope Item Title')
     pmb_L03_wp_ca_scope_item_no = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)],
                                                       verbose_name='Step Number')
-    comments = models.CharField(max_length=200, blank=True, null=True, verbose_name='CBWP Comments')
-    # Quantification, Pricing, Hours and Costs
-    uom = models.ForeignKey(UOM, on_delete=models.CASCADE, verbose_name='CBWP UOM ID', default=1)
-    # Current Forecast Budget
-    scope_item_quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
-                                              verbose_name='Scope Item Quantity', default=0)
+    # scope_item_quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
+    #                                           verbose_name='Scope Item Quantity', default=0)
+    # uom = models.ForeignKey(UOM, on_delete=models.CASCADE, verbose_name='CBWP UOM ID', default=1)
     scope_item_hours = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
                                            verbose_name='Scope Item Hours', default=0)
     scope_item_costs = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
                                            verbose_name='Scope Item Costs', default=0)
+    comments = models.CharField(max_length=200, blank=True, null=True, verbose_name='CBWP Comments')
 
     class Meta:
         managed = True
@@ -247,7 +344,7 @@ class PmbL03WpCaScopeItems(models.Model):
 class PmbL03WpCaScopeItemDetails(models.Model):
     pmb_L03_wp_ca_scope_item = models.ForeignKey(PmbL03WpCaScopeItems, on_delete=models.CASCADE,
                                                  verbose_name='PMB L03 WP CA Scope Item ID', default=1)
-    transaction_type = models.CharField(max_length=10, verbose_name='Transaction Type')
+    transaction_type = models.CharField(unique=False, max_length=10, verbose_name='Transaction Type')
     # Quantification, Pricing, Hours and Costs
     # Original Control Budget aka Final Estimate Budget
     quantity = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
@@ -257,7 +354,7 @@ class PmbL03WpCaScopeItemDetails(models.Model):
                                 verbose_name='Hours', default=0)
     costs = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True,
                                 verbose_name='Costs', default=0)
-    comments = models.CharField(max_length=200, verbose_name='Comments')
+    comments = models.CharField(blank=False, null=False, max_length=2000, verbose_name='Comments')
     modified_date = models.DateTimeField(verbose_name='Modified Date')
 
     class Meta:

@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from f_contracts.models import ContractClauses
 # from j_cb.models import CBWP
-from z_tab_pmb_quantum.models import PmbL04Wp
+from z_tab_pmb_quantum.models import PmbL04Wp, PmbL03Wp
 from djmoney.models.fields import MoneyField
 from djmoney.money import Money
 
@@ -42,8 +42,8 @@ class ClaimRoute(models.Model):
         return f"{self.claim_route_code} - {self.claim_route_title}"
 
 
-class PmbL04WpClaimDetail(models.Model):
-    pmb_L04_wp = models.ForeignKey(PmbL04Wp, verbose_name='PMB L04 WP ID', on_delete=models.CASCADE)
+class PmbL03WpClaimDetail(models.Model):
+    pmb_L03_wp = models.ForeignKey(PmbL03Wp, verbose_name='PMB L03 WP ID', on_delete=models.CASCADE)
     claim_number = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)],
                                        verbose_name='Claim Number')
     claim_initiation_date = models.DateTimeField(verbose_name='Claim Initiation Date', )
@@ -73,22 +73,22 @@ class PmbL04WpClaimDetail(models.Model):
 
     class Meta:
         managed = True
-        verbose_name_plural = "PMB L04 WP Claims"
-        db_table = 'pmb_L04_wp_claim'
+        verbose_name_plural = "PMB L03 WP Claims"
+        db_table = 'pmb_L03_wp_claim'
         app_label = 'm_claims'
-        unique_together = ['pmb_L04_wp', 'claim_number']
+        unique_together = ['pmb_L03_wp', 'claim_number']
 
 
-class PmbL04WpClaimDetailContractClauseReferences(models.Model):
-    pmb_L04_wp_claim = models.ForeignKey(PmbL04WpClaimDetail, unique=False, on_delete=models.CASCADE,
-                                         verbose_name='PMB L04 WP Claim Detail ID', default=1)
+class PmbL03WpClaimDetailContractClauseReferences(models.Model):
+    pmb_L03_wp_claim = models.ForeignKey(PmbL03WpClaimDetail, unique=False, on_delete=models.CASCADE,
+                                         verbose_name='PMB L03 WP Claim Detail ID', default=1)
     contract_clause = models.ForeignKey(ContractClauses, unique=False, on_delete=models.CASCADE,
                                         verbose_name='Contract Clause ID', default=1)
     comments = models.CharField(max_length=2000, blank=True, null=True, verbose_name='Comments')
 
     class Meta:
         managed = True
-        verbose_name_plural = "PMB L04 WP Claims With Contract Clauses"
-        db_table = 'pmb_L04_wp_claim_clause'
+        verbose_name_plural = "PMB L03 WP Claims With Contract Clauses"
+        db_table = 'pmb_L03_wp_claim_clause'
         app_label = 'm_claims'
-        unique_together = ['pmb_L04_wp_claim', 'contract_clause']
+        unique_together = ['pmb_L03_wp_claim', 'contract_clause']

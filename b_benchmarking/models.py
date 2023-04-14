@@ -27,7 +27,7 @@ class Projects(models.Model):
         return str('%s' % self.project_code)
 
 
-class ProjectPhases(models.Model):
+class ProjectPhasesBenchmarking(models.Model):
     project_phase_code = models.CharField(unique=True, max_length=5, verbose_name='Project Phase Code')
     project_phase_title = models.CharField(max_length=55, blank=True, null=True, verbose_name='Project Phase Title')
     project_phase_venue = models.CharField(max_length=55, blank=True, null=True, verbose_name='Project Phase Venue')
@@ -40,8 +40,8 @@ class ProjectPhases(models.Model):
 
     class Meta:
         managed = True
-        verbose_name_plural = 'Project Phases'
-        db_table = 'project_phase'
+        verbose_name_plural = 'Project Phases for Benchmarking'
+        db_table = 'project_phase_benchmarking'
         app_label = 'b_benchmarking'
         ordering = ['project_phase_code']
 
@@ -55,7 +55,7 @@ class WBSLocationsForProjectPhases(models.Model):
     wbs_location_title_project_phase = models.CharField(unique=True, blank=True, null=True, max_length=55,
                                                         verbose_name='WBS Location Title for Project Phase')
     comments = models.CharField(max_length=2000, blank=True, null=True, verbose_name='WBS Location Comments')
-    project_phase = models.ForeignKey(ProjectPhases, on_delete=models.CASCADE, verbose_name='Project Phase ID')
+    project_phase = models.ForeignKey(ProjectPhasesBenchmarking, on_delete=models.CASCADE, verbose_name='Project Phase ID')
 
     class Meta:
         managed = True

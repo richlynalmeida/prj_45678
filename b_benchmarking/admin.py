@@ -5,7 +5,7 @@ from f_contracts.models import Contract
 from django import forms
 
 admin.site.register(models.Projects)
-admin.site.register(models.ProjectPhases)
+admin.site.register(models.ProjectPhasesBenchmarking)
 admin.site.register(models.WBSLocationsForProjectPhases)
 admin.site.register(models.CommodityWeightedUnitPriceAverages)
 admin.site.register(models.CommodityWeightedUnitPriceAverageDetails)

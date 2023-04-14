@@ -8,6 +8,8 @@ class FinanceTransactionType(models.Model):
                                                        verbose_name='Finance Transaction Type Code')
     finance_transaction_type_title = models.CharField(unique=True, max_length=55,
                                                         verbose_name='Finance Transaction Type Title')
+    contract_flag = models.CharField(unique=False, max_length=1,
+                                                       verbose_name='Contract Flag', default='N')
 
     class Meta:
         managed = True
